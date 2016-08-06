@@ -9,8 +9,9 @@
             [puppetlabs.services.protocols.jruby-puppet :as jruby-protocol]
             [cheshire.core :as cheshire]
             [me.raynes.fs :as fs]
-            [puppetlabs.services.jruby.jruby-puppet-internal :as jruby-internal]
-            [puppetlabs.services.jruby.jruby-testutils :as jruby-testutils]
+            [puppetlabs.services.jruby-pool-manager.impl.jruby-internal :as jruby-internal]
+            [puppetlabs.services.jruby.jruby-puppet-testutils :as jruby-testutils]
+            [puppetlabs.services.jruby-pool-manager.jruby-pool-manager-service :as jruby-utils]
             [clojure.tools.logging :as log]
             [puppetlabs.trapperkeeper.core :as tk]
             [puppetlabs.services.protocols.puppet-server-config :as
@@ -30,6 +31,8 @@
             [puppetlabs.services.ca.certificate-authority-service :as ca]
             [puppetlabs.trapperkeeper.services.authorization.authorization-service
              :as authorization]
+            [puppetlabs.trapperkeeper.services.scheduler.scheduler-service
+             :as tk-scheduler]
             [puppetlabs.services.versioned-code-service.versioned-code-service
              :as vcs])
   (:import (com.puppetlabs.puppetserver JRubyPuppetResponse JRubyPuppet)
@@ -664,6 +667,7 @@
        app
        [handler/request-handler-service
         jruby-service/jruby-puppet-pooled-service
+        jruby-utils/jruby-pool-manager-service
         profiler/puppet-profiler-service
         webserver/jetty9-service
         webrouting/webrouting-service
@@ -672,7 +676,8 @@
         ca/certificate-authority-service
         authorization/authorization-service
         admin/puppet-admin-service
-        vcs/versioned-code-service]
+        vcs/versioned-code-service
+        tk-scheduler/scheduler-service]
        {:jruby-puppet {:max-active-instances 1
                        :environment-class-cache-enabled true}
         :webserver {:ssl-ca-cert (:localcacert puppetserver-settings)

@@ -7,11 +7,13 @@
             [puppetlabs.trapperkeeper.testutils.logging :as logutils]
             [puppetlabs.services.request-handler.request-handler-service :as handler]
             [puppetlabs.services.jruby.jruby-puppet-service :as jruby]
+            [puppetlabs.services.jruby-pool-manager.jruby-pool-manager-service :as jruby-utils]
             [puppetlabs.services.puppet-profiler.puppet-profiler-service :as profiler]
             [puppetlabs.trapperkeeper.services.webserver.jetty9-service :as webserver]
             [puppetlabs.trapperkeeper.services.webrouting.webrouting-service :as webrouting]
             [puppetlabs.services.config.puppet-server-config-service :as ps-config]
             [puppetlabs.services.legacy-routes.legacy-routes-service :as legacy-routes]
+            [puppetlabs.trapperkeeper.services.scheduler.scheduler-service :as tk-scheduler]
             [puppetlabs.services.puppet-admin.puppet-admin-service :as admin]
             [puppetlabs.services.ca.certificate-authority-disabled-service :as disabled-ca]
             [puppetlabs.trapperkeeper.services.authorization.authorization-service :as authorization]
@@ -86,6 +88,7 @@
         app
         [handler/request-handler-service
          jruby/jruby-puppet-pooled-service
+         jruby-utils/jruby-pool-manager-service
          profiler/puppet-profiler-service
          webserver/jetty9-service
          webrouting/webrouting-service
@@ -95,7 +98,8 @@
          admin/puppet-admin-service
          disabled-ca/certificate-authority-disabled-service
          authorization/authorization-service
-         vcs/versioned-code-service]
+         vcs/versioned-code-service
+         tk-scheduler/scheduler-service]
         {}
 
         (is (= 404 (:status (http-get "/production/certificate_statuses/all")))

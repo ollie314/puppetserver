@@ -6,7 +6,8 @@
             [puppetlabs.trapperkeeper.services :as tk-services]
             [puppetlabs.comidi :as comidi]
             [puppetlabs.dujour.version-check :as version-check]
-            [puppetlabs.services.protocols.master :as master]))
+            [puppetlabs.services.protocols.master :as master]
+            [puppetlabs.i18n.core :as i18n :refer [trs]]))
 
 (defservice master-service
   master/MasterService
@@ -16,6 +17,7 @@
    [:CaService initialize-master-ssl! retrieve-ca-cert! retrieve-ca-crl! get-auth-handler]
    [:JRubyPuppetService]
    [:AuthorizationService wrap-with-authorization-check]
+   [:SchedulerService interspaced]
    [:VersionedCodeService get-code-content]]
   (init
    [this context]
@@ -29,6 +31,7 @@
          product-name (or (get-in config [:product :name])
                           {:group-id    "puppetlabs"
                            :artifact-id "puppetserver"})
+         checkin-interval-millis (* 1000 60 60 24) ; once per day
          update-server-url (get-in config [:product :update-server-url])
          use-legacy-auth-conf (get-in config
                                       [:jruby-puppet :use-legacy-auth-conf]
@@ -38,13 +41,14 @@
                                                  [:jruby-puppet
                                                   :environment-class-cache-enabled]
                                                  false)]
-     (version-check/check-for-updates! {:product-name product-name} update-server-url)
+     (interspaced checkin-interval-millis
+                  (fn [] (version-check/check-for-updates! {:product-name product-name} update-server-url)))
 
      (retrieve-ca-cert! localcacert)
      (retrieve-ca-crl! hostcrl)
      (initialize-master-ssl! settings certname)
 
-     (log/info "Master Service adding ring handlers")
+     (log/info (trs "Master Service adding ring handlers"))
      (let [route-config (core/get-master-route-config ::master-service config)
            path (core/get-master-mount ::master-service route-config)
            ring-handler (when path
@@ -77,5 +81,5 @@
    context)
   (start
     [this context]
-    (log/info "Puppet Server has successfully started and is now ready to handle requests")
+    (log/info (trs "Puppet Server has successfully started and is now ready to handle requests"))
     context))

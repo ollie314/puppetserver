@@ -15,10 +15,11 @@ gem 'jira-ruby', :group => :development
 
 group :test do
   gem 'rspec'
-  gem 'beaker', *location_for(ENV['BEAKER_VERSION'] || '~> 2.44.0')
+  gem 'beaker', *location_for(ENV['BEAKER_VERSION'] || '~> 2.50.0')
   gem "beaker-hostgenerator", *location_for(ENV['BEAKER_HOSTGENERATOR_VERSION'] || "~> 0.7")
   gem 'uuidtools'
   gem 'httparty'
+  gem 'master_manipulator'
 end
 
 if File.exists? "#{__FILE__}.local"
